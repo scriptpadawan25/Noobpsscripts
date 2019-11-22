@@ -1,0 +1,35 @@
+#Script to rename multiple devices in Intune
+@Connect-AzureAD first in Powershell
+
+
+param (
+	
+    [Parameter( Mandatory=$false)]
+    [string]$CSVFileName="C:\scripts\Vaniam2.csv"
+)
+
+$logfile = "C:\scripts\hostname.log"
+Get-Date | Out-File $logfile
+
+
+$csvfile = Import-CSV $CSVFileName
+    
+	foreach ($line in $csvfile) {
+  
+   
+    $object=Get-AzureADDevice -searchstring $line.OGNAME
+
+    If ($object){
+
+    Set-AzureADDevice -objectID $object.ObjectID -displayname $line.NEWNAME |Export-Csv -Path "C:\scripts\vaniamchangename.csv"
+    "$($line.DisplayName) was modified successfully." | Out-File $logfile -Append
+    }
+
+    else {
+    "$($line.DisplayName)is existing." | Out-File $logfile -Append
+    }
+
+	
+}
+
+
